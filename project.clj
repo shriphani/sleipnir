@@ -2,10 +2,13 @@
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.6.0"]
+                 [cheshire "5.4.0"]
                  [compojure "1.1.6"]
                  [enlive "1.1.5"]
                  [hiccup "1.0.5"]
+                 [org.apache.commons/commons-lang3 "3.3.2"]
                  [org.bovinegenius/exploding-fish "0.3.4"]
+                 [ring/ring-json "0.3.1"]
                  [ring-server "0.3.1"]]
   :plugins [[lein-ring "0.8.12"]]
   :ring {:handler sleipnir.handler/app

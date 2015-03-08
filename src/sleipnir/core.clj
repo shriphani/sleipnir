@@ -1,28 +1,39 @@
 (ns sleipnir.core
   "Default routines and other boilerplate to
   launch a crawl"
-  (:require [net.cgrand.enlive-html :as html]
-            [org.bovinegenius.exploding-fish :as uri])
-  (:import [java.io StringReader]))
+  (:require [cheshire.core :refer :all]
+            [net.cgrand.enlive-html :as html]
+            [org.bovinegenius.exploding-fish :as uri]
+            [clojure.pprint :refer [pprint]])
+  (:import [java.io StringReader]
+           [java.net URLDecoder]
+           [org.apache.commons.lang3 StringEscapeUtils]))
 
 (defn extract-anchors
   "Extract href attributes
   from all <a> tags on a web-page"
-  [url body]
-  (let [resource (-> body (StringReader.) html/html-resource)
-        anchors  (html/select resource
-                              [:a])
+  [request]
+  (println request)
+  (let [url (-> request :params :url)
+        body (-> request :params :body)
+        decoded-uri (URLDecoder/decode url "UTF-8")
+        unescapd-html (StringEscapeUtils/unescapeHtml4 body)
+        resource (-> unescapd-html (StringReader.) html/html-resource)
+        anchors  (html/select resource [:a])
         links    (filter
                   identity
                   (map
                    (fn [an-anchor]
-                     (-> an-anchor :attrs :href))
+                     (try (uri/resolve-uri decoded-uri
+                                           (-> an-anchor
+                                               :attrs
+                                               :href))
+                          (catch NullPointerException e nil)))
                    anchors))]
-    (map
-     (fn [l]
-       (uri/resolve-uri url
-                        l))
-     links)))
+    (println decoded-uri)
+    (println body)
+    (println links)
+    (generate-string links)))
 
 (defn crawl
   "Crawl config."
