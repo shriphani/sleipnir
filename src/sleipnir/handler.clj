@@ -10,7 +10,10 @@
             [compojure.route :as route]
             [sleipnir.core :as core]
             [org.httpkit.server :as server]
-            [heritrix-clojure.core :as heritrix]))
+            [heritrix-clojure.core :as heritrix])
+  (:import [java.io StringReader]
+           [java.net URLDecoder]
+           [org.apache.commons.lang3 StringEscapeUtils]))
 
 (defn init []
   (println "sleipnir is starting"))
@@ -21,8 +24,16 @@
 (def app-config (atom {:extractor core/extract-anchors
                        :port 3000}))
 
+(defn extractor
+  [extractor-routine request]
+  (let [url (-> request :params :url)
+        body (-> request :params :body)
+        decoded-uri (URLDecoder/decode url "UTF-8")
+        unescaped-html (StringEscapeUtils/unescapeHtml4 body)]
+    (extractor-routine decoded-uri unescaped-html)))
+
 (defroutes app-routes
-  (POST "/extract" request ((:extractor @app-config) request)))
+  (POST "/extract" request (extractor (:extractor @app-config) request)))
 
 (defn crawl
   "Sets up a crawl. Expects heritrix to be running!!"
@@ -34,8 +45,14 @@
         seeds                (:seeds-file config)
         job-name             (-> job-dir
                                  (string/split #"/")
-                                 last)]
-    (do (swap! app-config merge config)  ; resolve the config
+                                 last)
+        new-config           (merge config
+                                    {:extractor-address
+                                     (str "http://localhost:"
+                                          (or (:port config)
+                                              (:port @app-config))
+                                          "/extract")})]
+    (do (swap! app-config merge new-config)  ; resolve the config
 
         ;; spin up webservice
         (server/run-server (handler/site #'app-routes)
@@ -47,10 +64,10 @@
           (.mkdir (io/as-file job-dir)))
 
         ;; generate-config-file
-        (let [new-config (core/generate-config-file @app-config)]
+        (let [new-config-file (core/generate-config-file @app-config)]
           (spit (str job-dir
                      "/crawler-beans.cxml")
-                new-config))
+                new-config-file))
 
         ;; add-job to heritrix
         (heritrix/add heritrix-engine-addr

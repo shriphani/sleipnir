@@ -14,13 +14,8 @@
 (defn extract-anchors
   "Extract href attributes
   from all <a> tags on a web-page"
-  [request]
-  (println request)
-  (let [url (-> request :params :url)
-        body (-> request :params :body)
-        decoded-uri (URLDecoder/decode url "UTF-8")
-        unescapd-html (StringEscapeUtils/unescapeHtml4 body)
-        resource (-> unescapd-html (StringReader.) html/html-resource)
+  [decoded-uri unescaped-html]
+  (let [resource (-> unescaped-html (StringReader.) html/html-resource)
         anchors  (html/select resource [:a])
         links    (filter
                   identity
@@ -33,7 +28,6 @@
                           (catch NullPointerException e nil)))
                    anchors))]
     (println decoded-uri)
-    (println body)
     (println links)
     (generate-string links)))
 
