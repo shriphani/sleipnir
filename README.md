@@ -103,7 +103,7 @@ the submitted links to `/tmp/bodies.clj`.
 
 Here's a screengrab of the job:
 
-<img src="/img/heritrix-sleipnir-demo.png" />
+<img src="http://blog.shriphani.com/img/heritrix-sleipnir-demo.png" />
 
 And here's a snapshot of the recorded submission links:
 
