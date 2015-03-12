@@ -22,18 +22,41 @@
   (println "sleipnir is shutting down"))
 
 (def app-config (atom {:extractor core/extract-anchors
-                       :port 3000}))
+                       :port      3000
+                       :archive?  false
+                       :writer    core/write-clj-obj}))
+
+(defn process-request
+  [request]
+  [(-> request
+       :params
+       :url
+       (URLDecoder/decode "UTF-8"))
+   (-> request
+       :params
+       :body
+       (StringEscapeUtils/unescapeHtml4))])
 
 (defn extractor
   [extractor-routine request]
-  (let [url (-> request :params :url)
-        body (-> request :params :body)
-        decoded-uri (URLDecoder/decode url "UTF-8")
-        unescaped-html (StringEscapeUtils/unescapeHtml4 body)]
+  (let [[decoded-uri unescaped-html] (process-request request)]
     (extractor-routine decoded-uri unescaped-html)))
 
+(defn writer
+  [writer-routine request out-file]
+  (when out-file
+    (let [wrtr (io/writer out-file :append true)
+          [decoded-uri unescaped-html] (process-request request)]
+      (writer-routine decoded-uri
+                      unescaped-html
+                      wrtr)
+      (.close wrtr))))
+
 (defroutes app-routes
-  (POST "/extract" request (extractor (:extractor @app-config) request)))
+  (POST "/extract" request (extractor (:extractor @app-config) request))
+  (POST "/write" request (writer (:writer @app-config)
+                                 request
+                                 (:out-file @app-config))))
 
 (defn crawl
   "Sets up a crawl. Expects heritrix to be running!!"
@@ -51,7 +74,13 @@
                                      (str "http://localhost:"
                                           (or (:port config)
                                               (:port @app-config))
-                                          "/extract")})]
+                                          "/extract")
+                                     :writer-address (if (:out-file config)
+                                                       (str "http://localhost:"
+                                                            (or (:port config)
+                                                                (:port @app-config))
+                                                            "/write")
+                                                       "blank")})]
     (do (swap! app-config merge new-config)  ; resolve the config
 
         ;; spin up webservice
