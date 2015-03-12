@@ -1,6 +1,6 @@
-(defproject sleipnir "0.2.1"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject sleipnir "0.2.2"
+  :description "Using sweet-sweet clojure in Heritrix"
+  :url "http://github.com/shriphani/sleipnir"
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [cheshire "5.4.0"]
                  [compojure "1.1.6"]

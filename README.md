@@ -5,7 +5,7 @@ battle-tested web-crawlers (heritrix in particular).
 
 ## Leiningen
 
-
+[![Clojars Project](http://clojars.org/sleipnir/latest-version.svg)](http://clojars.org/sleipnir)
 
 ## Running
 
