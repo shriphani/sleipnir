@@ -6,6 +6,8 @@
                  [compojure "1.1.6"]
                  [enlive "1.1.5"]
                  [hiccup "1.0.5"]
+                 [heritrix-clojure "0.1.0"]
+                 [http-kit "2.1.16"]
                  [org.apache.commons/commons-lang3 "3.3.2"]
                  [org.bovinegenius/exploding-fish "0.3.4"]
                  [ring/ring-json "0.3.1"]

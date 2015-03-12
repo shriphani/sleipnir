@@ -2,9 +2,11 @@
   "Default routines and other boilerplate to
   launch a crawl"
   (:require [cheshire.core :refer :all]
+            [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
+            [clojure.string :as string]
             [net.cgrand.enlive-html :as html]
-            [org.bovinegenius.exploding-fish :as uri]
-            [clojure.pprint :refer [pprint]])
+            [org.bovinegenius.exploding-fish :as uri])
   (:import [java.io StringReader]
            [java.net URLDecoder]
            [org.apache.commons.lang3 StringEscapeUtils]))
@@ -35,8 +37,26 @@
     (println links)
     (generate-string links)))
 
-(defn crawl
-  "Crawl config."
+(def configs-defaults
+  {:contact-url ["SLEIPNIR_CONTACT_URL" nil]
+   :job-name    ["SLEIPNIR_JOB_NAME" nil]
+   :description ["SLEIPNIR_JOB_DESCRIPTION" nil]
+   :seeds-file  ["SLEIPNIR_SEEDS_FILE" "seeds.txt"]
+   :extractor-address ["SLEIPNIR_EXTRACTOR_ADDRESS"
+                       "http://localhost:3000/extract"]})
+
+(defn generate-config-file
   [config]
-  (let [extractor (:extractor config)]
-    '*))
+  (let [default-config-file (slurp
+                             (io/resource "crawler-beans.cxml"))]
+    (assert (:seeds-file config)) ; seeds file cannot be non-existent
+    (assert (:contact-url config)) ; contact url can't be nil
+    (reduce
+     (fn [acc [item [key default-val]]]
+       (string/replace acc
+                       (re-pattern key)
+                       (str
+                        (or (get config item)
+                            default-val))))
+     default-config-file
+     configs-defaults)))
