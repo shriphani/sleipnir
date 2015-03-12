@@ -3,9 +3,13 @@
 Sleipnir allows you to specify clojure routines to use with
 battle-tested web-crawlers (heritrix in particular).
 
+## Leiningen
+
+
+
 ## Running
 
-First, spin up a Heritrix instance (REQUIRED for a crawl to complete).
+First, download and spin up a Heritrix instance (REQUIRED for a crawl to complete).
 
 ```
 wget https://s3-us-west-2.amazonaws.com/sleipnir-heritrix/heritrix-3.3.0-SNAPSHOT-dist.zip
@@ -31,8 +35,7 @@ We start with the imports:
   (:import [java.io StringReader]))
 ```
 
-Say, I want
-to walk through reddit's pagination. We use
+Say, I want to walk through reddit's pagination. We use
 enlive selectors for our extractor code:
 
 ```clojure
@@ -100,7 +103,21 @@ the submitted links to `/tmp/bodies.clj`.
 
 Here's a screengrab of the job:
 
-<img src="http://blog.shriphani.com/img/heritrix-sleipnir-demo.png" />
+<img src="/img/heritrix-sleipnir-demo.png" />
+
+And here's a snapshot of the recorded submission links:
+
+```
+https://www.reddit.com/r/tifu/comments/2ys7wr/tifu_by_attempting_to_clean_the_kitchen/
+http://uatoday.tv/politics/ukraine-calls-for-russian-documentary-on-crimea-to-be-sent-to-hague-tribunal-414713.html
+https://www.reddit.com/r/Music/comments/2ys88r/check_out_our_free_ep_feathers_by_divide_of/
+https://s-media-cache-ak0.pinimg.com/736x/19/f6/18/19f618637135ec676d0dfdcd4d23b542.jpg
+http://imgur.com/HqG6Udq
+https://www.reddit.com/r/Jokes/comments/2ys8a9/did_you_hear_about_the_nympho_waitress/
+https://www.reddit.com/r/AskReddit/comments/2ys8bb/hey_reddit_what_is_a_great_classic_or_family/
+http://imgur.com/qTKH4pA
+...
+...
 
 
 ## License
