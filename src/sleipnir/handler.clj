@@ -1,5 +1,6 @@
 (ns sleipnir.handler
-  (:require [clojure.java.io :as io]
+  (:require [cheshire.core :refer :all]
+            [clojure.java.io :as io]
             [clojure.string :as string]
             [compojure.core :refer :all]
             [ring.middleware.resource :refer [wrap-resource]]
@@ -40,7 +41,8 @@
 (defn extractor
   [extractor-routine request]
   (let [[decoded-uri unescaped-html] (process-request request)]
-    (extractor-routine decoded-uri unescaped-html)))
+    (generate-string
+     (extractor-routine decoded-uri unescaped-html))))
 
 (defn writer
   [writer-routine request out-file]
