@@ -29,7 +29,7 @@
                    anchors))]
     (println decoded-uri)
     (println links)
-    (generate-string links)))
+    links))
 
 (defn write-clj-obj
   "Writes a clojure object as the payload"
